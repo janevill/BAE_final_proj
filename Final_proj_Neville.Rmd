@@ -1,0 +1,48 @@
+---
+title: "Euclidating Drivers and Characteristics of Three Saltwater Intrusion Events"
+author: "Justine Neville"
+date: "12/5/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+Include Abstract text here  
+
+## Introduction
+Saltwater intrusion is a phenomena that threatens coastal freshwaters world wide. Having been studied in groundwater for decades, we know much about the physical processes that push saltwater further inland, though this coastal hazard is primarly observed and considered to be a chronic, slowly occurring process. Little attention has been given to saltwater intrusion in surface waters, where saltwater can rapidly be brought far inland via storm surge, wind tides, or drought. Despite this lack of attention, the negative impacts of saltwater intrusion are great and far reaching, ecologically, ranging from loss of agricultural crops, to vegetative stress and mortality, and even to immense carbon and nitrogen loss into coastal waters. However, one poorly understood facet of these saltwater intrusion events are the characteristics of them such as their magnitude and their duration. Understanding characteristics of specific saltwater intrusion events such as duration and magnitude is crucial due to the ecological implications that both high salt concentrations and their residence times within a foreign system has on vegetative health.  
+
+Another poorly understood facet of saltwater intrusion events is what drives these episodic events. To euclidate what drives individual saltwater intrusion events, one can use wavelet analysis. Given a time series, the continuous wavelet transform can find significant periods of variation across localized time frequency space. To determine if there is a significant common power in time frequency space between two time series variables, as well as the direction of the relationship. Finally, wavelet cohereance can be used to inform the user how coherant the two time series are in time frequency space. Where the two time series show common power or coherance, we know there is some sort of significant relationship between the two variables, what that relationship is (inverse or direct), how long it persists for within the time series, and  where in the time series the relationship originates. 
+
+Of the areas experiencing saltwater intrusion, coastal North Carolina, more specifically the Albemarle - Pamlico Peninsula is particularly vulnerable to such events. The majority of the entire region sits just three meters above mean sea level and is currently experiencing saltwater intrusion. Additionally, this region is characterized as one of the poorest regions of North Carolina an is primarly ignored due to it being somewhat sheltered from the ocean by North Carolina's barrier islands. Nevertheless, this region still faces many of the challenges that come with climate change an sea level rise, but lacks the capital to adapt. Using  a two year timeseries dataset of specific conductance, water level, and precipitation I answer the following questions:  
+
+INSERT BULLETED LIST OF QUESTIONS
+*What was the maximum salinity of the Hurricane Florence and Dorian storm surges and how long did it take for salinity levels to return to average site conditions following each event? 
+*During the flash drought of 2019 what patterns do we see in our salinity data?
+*Can wavelet coherance diagrams show us both hurricanes and the flash drought in time frequency space? 
+
+NEED TO INCLUDE SOME MENTION OF HURRICANES FLORENCE AND DORIAN AS WELL AS THE FLASH DROUGHT WE HAD IN SUMMER 2019.  
+
+#Methods  
+
+To understand better the characteristics of surficial saltwater intrusion events, we collected over four years of specific conductance, water level, temperature, and other meteorological variables (wind, wind direction, precipitation, relative humidity) at 15-minute intervals. For this particular study, we will focus on data from 2018 and 2019, aggregated to hourly intervals for faster data processing.
+
+
+
+
+```{r Site map}
+#generate site map here - refere to geospatial module
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
