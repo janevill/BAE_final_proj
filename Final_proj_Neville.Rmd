@@ -1,48 +1,339 @@
 ---
-title: "Euclidating Drivers and Characteristics of Three Saltwater Intrusion Events"
+title: "Elucidating Drivers and Characteristics of Three Saltwater Intrusion Events"
 author: "Justine Neville"
 date: "12/5/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+#Download and install required packages
+# install.packages("biwavelet")
+# install.packages("raster")
+# install.packages("rgdal")
+# install.packages("qwraps2")
+library(tidyverse)
+library(biwavelet)
+library(lubridate)
+library(padr)
+library(gridExtra)
+library(xts)
+library(scales)
 ```
 
 ## Abstract
-Include Abstract text here  
+Saltwater intrusion is a complex, heterogeneous phenomena threatening coastal freshwaters. It is crucial that we better understand the dynamics of these events, so that we may eventually better characterize them and predict them. In this study,  a two year time series dataset was analyzed, observing three periods of major saltwater intrusion events. Wavelet coherence diagrams were used to analyze the salinity depth relationship during two hurricanes. A continuous wavelet transform was used to detect significant periods of variability across the salinity time series during a flash drought in 2019. Results show that significant relationships between salinity and depth can be detected during both hurricanes, but that the relationship isn't always the same. The continuous wavelet transform reveals a unique pattern in our time series when precipitation is lacking and temperatures are high.  
 
 ## Introduction
-Saltwater intrusion is a phenomena that threatens coastal freshwaters world wide. Having been studied in groundwater for decades, we know much about the physical processes that push saltwater further inland, though this coastal hazard is primarly observed and considered to be a chronic, slowly occurring process. Little attention has been given to saltwater intrusion in surface waters, where saltwater can rapidly be brought far inland via storm surge, wind tides, or drought. Despite this lack of attention, the negative impacts of saltwater intrusion are great and far reaching, ecologically, ranging from loss of agricultural crops, to vegetative stress and mortality, and even to immense carbon and nitrogen loss into coastal waters. However, one poorly understood facet of these saltwater intrusion events are the characteristics of them such as their magnitude and their duration. Understanding characteristics of specific saltwater intrusion events such as duration and magnitude is crucial due to the ecological implications that both high salt concentrations and their residence times within a foreign system has on vegetative health.  
+Saltwater intrusion is a phenomena that threatens coastal freshwaters world wide. Having been studied in groundwater for decades, much is known about the physical processes that push saltwater further inland, though this coastal hazard is primarly observed and considered to be a chronic, slowly occurring process. Little attention has been given to saltwater intrusion in surface waters, where saltwater can rapidly be brought far inland via storm surge, wind tides, or drought. Despite this lack of attention, the negative impacts of saltwater intrusion are great and far reaching, ecologically, ranging from loss of agricultural crops, to vegetative stress and mortality, and even to immense carbon and nitrogen loss into coastal waters. However, one little has been done to evaluate how different storm surge and drought events, increase and cause salinity to linger at higher levels than normal.  
 
-Another poorly understood facet of saltwater intrusion events is what drives these episodic events. To euclidate what drives individual saltwater intrusion events, one can use wavelet analysis. Given a time series, the continuous wavelet transform can find significant periods of variation across localized time frequency space. To determine if there is a significant common power in time frequency space between two time series variables, as well as the direction of the relationship. Finally, wavelet cohereance can be used to inform the user how coherant the two time series are in time frequency space. Where the two time series show common power or coherance, we know there is some sort of significant relationship between the two variables, what that relationship is (inverse or direct), how long it persists for within the time series, and  where in the time series the relationship originates. 
+Another poorly understood facet of saltwater intrusion events is what drives these episodic events. To euclidate what drives individual saltwater intrusion events, one can use wavelet analysis. Given a time series, the continuous wavelet transform can find significant periods of variation across localized time frequency space. To determine if there is a significant common power in time frequency space between two time series variables, as well as the direction of the relationship, one can utilize wavelet coherence diagrams. Finally, wavelet cohereance can be used to inform the user how coherant two time series are in time frequency space. Where the two time series show common power or coherance, we know there is some sort of significant relationship between the two variables, what that relationship is (inverse or direct), how long it persists for within the time series, and  where in the time series the relationship originates. 
 
-Of the areas experiencing saltwater intrusion, coastal North Carolina, more specifically the Albemarle - Pamlico Peninsula is particularly vulnerable to such events. The majority of the entire region sits just three meters above mean sea level and is currently experiencing saltwater intrusion. Additionally, this region is characterized as one of the poorest regions of North Carolina an is primarly ignored due to it being somewhat sheltered from the ocean by North Carolina's barrier islands. Nevertheless, this region still faces many of the challenges that come with climate change an sea level rise, but lacks the capital to adapt. Using  a two year timeseries dataset of specific conductance, water level, and precipitation I answer the following questions:  
+Of the areas experiencing saltwater intrusion, coastal North Carolina, more specifically the Albemarle - Pamlico Peninsula is particularly vulnerable to such events. The majority of the entire region sits just three meters above mean sea level and is currently experiencing saltwater intrusion. Additionally, this region is characterized as one of the poorest regions of North Carolina an is primarly ignored due to it being somewhat sheltered from the ocean by North Carolina's barrier islands. Nevertheless, this region still faces many of the challenges that come with climate change and sea level rise, but lacks the capital to adapt.  
 
-INSERT BULLETED LIST OF QUESTIONS
+2018 and 2019 brought both large storms and dry summer weather, conditions that are prime for causing saltwater intrusion events. Using  a two year timeseries dataset of specific conductance, water level, and precipitation the following questions are answered:  
+
+
 *What was the maximum salinity of the Hurricane Florence and Dorian storm surges and how long did it take for salinity levels to return to average site conditions following each event? 
 *During the flash drought of 2019 what patterns do we see in our salinity data?
 *Can wavelet coherance diagrams show us both hurricanes and the flash drought in time frequency space? 
 
-NEED TO INCLUDE SOME MENTION OF HURRICANES FLORENCE AND DORIAN AS WELL AS THE FLASH DROUGHT WE HAD IN SUMMER 2019.  
 
-#Methods  
-
-To understand better the characteristics of surficial saltwater intrusion events, we collected over four years of specific conductance, water level, temperature, and other meteorological variables (wind, wind direction, precipitation, relative humidity) at 15-minute intervals. For this particular study, we will focus on data from 2018 and 2019, aggregated to hourly intervals for faster data processing.
-
-
-
-
-```{r Site map}
-#generate site map here - refere to geospatial module
+## Methods  
+**Data Collection**
+  
+Specific conductance, water level, temperature, and other meteorological variables (wind, wind direction, precipitation, relative humidity) at 15-minute intervals from January 1st, 2018 to October 22nd, 2019. For ease of processing, data was aggregated this data to hourly intervals. Three periods of interest were identified for analysis.  To analyze storm surge events, a period from September 14 - October 15,  2018 and a period from September 6 - 20, 2019 were extracted to analyze storm surge from hurricanes Florence and Dorian which both impacted the North Carolina coast with flooding and high winds . To evaluate salinity patterns during drought, we extracted a period from September 20 - October 7, 2019 which encompassed the flash drought that eastern North Carolina experienced this year.  
+```{r Data_summary,message=FALSE, warning = FALSE, echo = FALSE }
+library(knitr)
+data_summary <- data.frame(Variable= c("Specific Conductance","Water Level", "Salinity" ), Units=c("microS/cm", "m","ppt"))
+kable(data_summary) 
 ```
 
-## Including Plots
+**Data Tidying and Wrangling**  
 
-You can also embed plots, for example:
+To tidy the dataset, I first used the lubridate package to ensure all datetimes were in a format readable to R. I then filled any data gaps with values of NA using pad from the padr package. Salinity was then calculated using a known equation and the mutate function. Data were then subsetted from the larger, 4-year record to contain just 2018 and 2019. Further subsets were created later on in the analysis to evaluate only the hurricane and flash drought periods in the dataset. Finally, the last data point was removed from the dataset to ensure an equal timestep throughout the entire dataset.  
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+**Visualizations**  
+
+Scatter plots of the time-series were made to visualize the saltwater intrusion events that occurred around both hurricanes and the flash drought. This was to get a feel for the maximum salinity of each event, and how long each event lingered. Additionally, a cwavelet coherence diagram was plotted for both salinity and water level as well as salinity and  wind speed and direction combined to see where in the time series parameters co-varied significantly. The wavelet coherene diagrams also revealed at what time scale these parameters were correlated. A continuous wavelet transform was plotted to show if the flash drought of 2019 had any significant variability in it's salinity data.  
+
+**Statistical Summaries**  
+ 
+Nominal statistics were computed for salinity, specific conductance, water level, and wind speed. These statistics were used to gain information on the extremes data can reach here as well as what average conditions are.  
+
+**Statistical Analysis**  
+Code was created to calculate the duration of saltwater intrusion events for the periods of interest, as well as the maximum salinity during events. Continuous wavelet transforms,  as well as wavelet coherence diagrams were computed using the biwavelet package. Continuous wavelets were used to find when in the time series the data varied significantly, as well as at what timescale this variability occurred. Wavelet coherence diagrams were also used to find when and at what timescale significant correlations occurred between two time series, namely salinity and depth.   
+
+
+
+
+
+```{r Site map, message=FALSE, warning = FALSE, echo = FALSE, results='hide',include=TRUE}
+library(sf)
+library(raster)
+library(rgdal)
+library(qwraps2)
+library(RColorBrewer)
+library(ggspatial)
+#
+#read in spatial data 
+read_sf("data/spatial_data/AR01.shp")->ar01_point
+read_sf("data/spatial_data/panhand_canals.shp")->canals
+raster("data/spatial_data/panhandle_3m.tif")->panhandle_dem
+#check projection codes
+st_crs(ar01_point)
+st_crs(canals)
+projection(panhandle_dem)
+#Assign epsg codes
+st_transform(ar01_point,CRS("+proj=lcc +lat_1=36.16666666666666 +lat_2=34.33333333333334 +lat_0=33.75 +lon_0=-79 +x_0=609601.22 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))->ar01_point
+st_transform(canals,CRS("+proj=lcc +lat_1=36.16666666666666 +lat_2=34.33333333333334 +lat_0=33.75 +lon_0=-79 +x_0=609601.22 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0"))->canals
+projectRaster(panhandle_dem,crs="+proj=lcc +lat_1=36.16666666666666 +lat_2=34.33333333333334 +lat_0=33.75 +lon_0=-79 +x_0=609601.22 +y_0=0 +datum=NAD83 +units=m +no_defs +ellps=GRS80 +towgs84=0,0,0")
+#uncomment the above line if the raster has no projection. this line takes a very long time to run
+#
+#turn raster layer into datafrane
+dem_points<-data.frame(rasterToPoints(panhandle_dem))
+colnames(dem_points) <- c("X","Y","Elevation")
+
+#create sitemap
+n=3
+breaks = seq(min(dem_points$Elevation),max(dem_points$Elevation), length.out = n)
+ggplot()+
+  geom_raster(dem_points, mapping = aes(x= X, y = Y, fill = Elevation))+
+  scale_fill_gradientn(limits = c(0,5),
+  na.value = "black",
+  colors = c("black", "white"),
+  name= "Elevation (m)")+
+  labs(x = "", y = "", caption = "fig 1. Pan Handle Portion of the Albemarle - Pamlico Peninsula \n located in northeastern North Carolina")+
+  theme(axis.title.x=element_blank())+
+  geom_sf(data=canals,color = "blue")+
+  geom_sf(data=ar01_point, fill = "red", color = "black",pch=21, size = 4, stroke = 1)+
+  scale_x_continuous(breaks = breaks)+
+  annotation_scale(location = "br")+
+  annotation_north_arrow(location="tr",pad_x=unit(0.25, "cm"), style=north_arrow_fancy_orienteering())+
+  theme_classic()+
+  theme(plot.caption = element_text(hjust = 0, face = "italic"))# move caption to the left
+
+#library(knitr)
+#kable(ar0_2018_2019_hourly[1,0])
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Results
+
+Data for Alligator River show that this site is highly variable with salinities ranging from <1 to close to 30 ppt, but on average, salinity is around 5 ppt (fig 2). While both hurricane Florence and Dorian resulted in widespread flooding across the peninsula, the two events differed dramatically in the time it took for salinity to return to average site conditions. Following hurricane Florence it took 23 days for salinity to drop below 5 ppt again (fig 3a). In contrast, salinity returned to average conditions just 19 hours after hurricane Dorian(fig 3b). This may be because Dorian produced more freshwater flooding in this region of the state than did hurricane Florence. Evidence of this can be seen in figures 2b and 2c which show salinity and respective water levels for each event. Because water level peaks after the event in Dorian, we can assume that the water is primarily fresh floodwaters as opposed to salty storm surge. This can be corroborated by the fact that salinity levels were extremely low at the same time as the increase in water level (figures 3a and 3b).  
+
+```{r tidy_data, echo=FALSE, warning = FALSE, message=FALSE}
+
+##############################################################################
+
+#Project research questions:
+# *What was the maximum salinity of the Hurricane Florence and Dorian storm surges and how long did it take for salinity levels to return to average site conditions following each event? 
+#   *During the flash drought of 2019 what patterns do we see in our salinity data?
+#   *Can wavelet coherance diagrams show us both hurricanes and the flash drought in time frequency space? 
+
+
+
+################################################################################
+
+#import and tidy the site data-------
+#step one. Import data for AR0
+read_csv("data/AR0_Full_111819.csv") -> ar0
+#change datetime column to datetime format in R
+ar0$record_date_time <- mdy_hm(ar0$record_date_time)
+#fill data gaps so there are none. observations of filled times will be NA
+ar0_no_date_gap <- ar0%>% pad %>% fill_by_value(NA)
+#mutate in salinity column, units = ppt
+ar0 %>%
+  mutate(spc_ms_cm = `specific_conductance_microScm-1`/1000) %>%
+  mutate(salinity = 0.008+(-0.1692*(sqrt(spc_ms_cm/53.0647665)))+(0.47837957*spc_ms_cm)+(14.091*((spc_ms_cm/53.0647665)^1.5))+(-7.0261*((spc_ms_cm/53.0647665)^2))+(2.7081*((spc_ms_cm/53.0647665)^2.5))+(8.60585198*(0.0005+(-0.0056*(sqrt(spc_ms_cm/53.0647665)))+(-0.0066*(spc_ms_cm/53.0647665))+(-0.0375*((spc_ms_cm/53.0647665)^1.5))+(0.0636*((spc_ms_cm/53.0647665)^2))+(-0.0144*((spc_ms_cm/53.0647665)^2.5)))))%>%
+  mutate(site = "ar0") -> ar0
+
+#create a subset of only 2018 and 2019 data
+ar0_2019 <- subset(ar0, format(as.Date(record_date_time),"%Y")==2019)
+ar0_2018 <- subset(ar0, format(as.Date(record_date_time),"%Y")==2018)
+ar0_2018_2019 <- full_join(ar0_2018,ar0_2019)
+#aggregate the data to an hourly time scale for faster plotting and processing
+ar0_2018_2019_hourly <- xts(ar0_2018_2019, order.by=ar0_2018_2019$record_date_time)
+ends <- endpoints(ar0_2018_2019_hourly,'hours',1) 
+period.apply(ar0_2018_2019_hourly,ends ,mean)->ar0_2018_2019_hourly
+data.frame(date_time=index(ar0_2018_2019_hourly), coredata(ar0_2018_2019_hourly))->ar0_2018_2019_hourly
+#remove last row from dataframe else the timestep will not be equal for wavelet analysis
+head(ar0_2018_2019_hourly,-1)->ar0_2018_2019_hourly
+#exploratory data analysis- plot time series-----
+
+##add more options to this plot
+##change labels, change theme, at title, look into changing the x axis label format -> FIGURE 1
+ggplot(ar0_2018_2019_hourly, mapping = aes(x=date_time, y=salinity))+
+  geom_point(color ="black", fill = "grey", pch = 21)+
+  guides(fill=FALSE)+
+  labs(x = "", y= "Salinity (ppt)", caption = "fig 2. Salinity time series data for 2018 and 2019")+
+  theme_classic()+
+  theme(plot.caption = element_text(hjust = 0, face = "italic"))# move caption to the left
+
+  
+#
+mean(ar0_2018_2019_hourly$salinity,na.rm = TRUE) -> site_avg_salt
+#
+```
+```{r hurricane data subset, warning = FALSE, message=FALSE, echo = FALSE}
+#hurricane analyis-----
+#Hurricane Florence made landfall in NC on 2018/09/14 as a category 1 hurricane. 
+#Hurricane Dorian made landfall in NC on 209/09/06 as a cat 1 hurricane.
+#step 1. take a month long subset surrounding each hurricane
+
+florence <- subset(ar0_2018_2019_hourly, date_time> ymd_hms('2018-09-01 00:45:00') & date_time < ymd_hms('2019-01-01 00:45:00'))
+dorian <-subset(ar0_2018_2019_hourly, date_time> ymd_hms('2019-09-06 00:45:00') & date_time < ymd_hms('2019-10-06 00:45:00'))
+
+#exploratory plots of salinity data from hurricanes
+ggplot(florence, mapping = aes(x=date_time, y=salinity))+
+  geom_point(aes(fill = florence$water_level_m),color ="black", pch = 21)+
+  labs(x = "", y= "Salinity (ppt)", caption = "fig 3a. Hurricane Florence(2018)", fill="Water Level (m)")+
+  scale_fill_continuous(type = "viridis")+
+  theme_classic()+
+  theme(plot.caption = element_text(hjust = 0, face = "italic")) -> fig3a# move caption to the left
+
+ggplot(dorian, mapping = aes(x=date_time, y=salinity))+
+  geom_point(aes(fill = dorian$water_level_m),color ="black", pch = 21)+
+  labs(x = "", y= "Salinity (ppt)", caption = "fig 3b. Hurricane Dorian (2019)", fill = "Water Level (m)")+
+  scale_fill_continuous(type = "viridis")+
+  theme_classic()+
+  theme(plot.caption = element_text(hjust = 0, face = "italic"))->fig3b# move caption to the left
+
+grid.arrange(fig3a, fig3b, nrow = 2)
+
+```
+  
+  Tables 2 and 3. show nominal statistics for each hurricane. Between the two events, hurricane Florence experienced a higher max salinity at 16 ppt, but Dorian's peak was similar at 14 ppt. Despite having similar max salinities, these two hurricanes differ significantly in their time to re-freshening. Florence took close to a month to reach average salinity values following the storm, while Dorian took less than a day. Although average conditions only took a month to return following Florence, the behavior of the site appears different from what is see in the rest of the record. Following florence, a steady decline in event peaks can be seen, with no troughs reaching below 2 ppt until January of 2019 (figure 2). In comparison, hurricane Dorian had a single clear spike in salinity and then rapidly decreased to very fresh conditions. This may have been because flooding from Dorian in this part of the state was worse than the flooding that Florence brought.  
+  
+
+```{r summarize hurricane data , message=FALSE, warning = FALSE, echo = FALSE}
+#What was the maximum salinity the period of analysis
+filter(florence,date_time>=ymd_hms('2018-09-14 00:45:00') & date_time <ymd_hms('2018-10-15 0:45:00')) ->flor_period
+max(flor_period$salinity, na.rm=TRUE) -> max_florence_salinity
+filter(dorian,date_time>=ymd_hms('2019-09-06 00:45:00') & date_time < ymd_hms('2019-09-20 0:45:00')) ->dor_period
+max(dor_period$salinity) -> max_dorian_salinity
+#summarize the data during the hurricane observation periods
+flor_period_table_data <- data.frame(flor_period$date_time, flor_period$water_level_m, flor_period$water_temperature_degC, flor_period$salinity)
+florence_summary <- summary(flor_period_table_data)
+colnames(florence_summary) <- c("Date/Time", "Water Level (m)","Water Temp (C)","Salinity (ppt)")
+kable(florence_summary, caption= "Hurricane Florence Summary Statistics")
+
+dor_period_table_data <- data.frame(dor_period$date_time, dor_period$water_level_m, dor_period$water_temperature_degC, dor_period$salinity)
+dorian_summary <- summary(dor_period_table_data)
+colnames(dorian_summary) <- c("Date/Time", "Water Level (m)","Water Temp (C)","Salinity (ppt)")
+kable(dorian_summary, caption = "Hurricane Dorian Summary Statistics")
+
+```
+```{r determine duration of elevated salinity for each hurricane, message=FALSE, warning = FALSE, echo = FALSE}
+#determine how long it took for salinity to return to average site salinity
+#create seperate object to drop the NAs - interpolation for small gaps? 
+
+florence_salt <- na.omit(flor_period$salinity)
+elevated_salinity_dur <-  rep(NA, length(florence_salt))
+dur = 0
+for (record in 1:length(elevated_salinity_dur)){ 
+  if (florence_salt[record] < 5){
+    if (dur>0){
+      elevated_salinity_dur[record] <- dur 
+      dur = 0
+    }
+  }
+  else{
+    dur=dur+1
+  }
+}
+elevated_salinity_dur <- na.omit(elevated_salinity_dur)
+#the increased salinity from hurricane florence lingered for about 23 days
+#repeat for hurricane Dorian
+#
+dor_salt <- na.omit(dor_period$salinity)
+elev_salt_dur_dor <-  rep(NA, length(dor_salt))
+dur = 0
+for (record in 1:length(elev_salt_dur_dor)){ 
+  if (dor_salt[record] < 5){
+    if (dur>0){
+      elev_salt_dur_dor[record] <- dur 
+      dur = 0
+    }
+  }
+  else{
+    dur=dur+1
+  }
+}
+elev_salt_dur_dor <- na.omit(elev_salt_dur_dor)
+#elevated salt from hurricane dorian only lingered 19 hours
+```
+Wavelet coherence diagrams are a common tool for discovering areas of significant correlations between two time series. Here, a  wavelet coherence analysis was run for both hurricanes Florence and Dorian to see if a significant relationship  between depth and salinity could be captured during both events. Figures 4a. and 4b. show significant correlations around the time that both hurricanes made landfall. Hurricane Florence made landfall in North Carolina September 14th, 2018. Looking at the wavelet coherence diagram (figure 4a) we see that shortly after Florence made landfall there was a band of significance around the 16 hour period. The arrows at this point in the figure reveal that salinity and depth are in near anti-phase with one another, meaning that as salinity increased, water level decreased. Further evidence of this claim can be seen in figure 3a. Hurricane Dorian too displayed bands of significant correlation between salinity and depth. However, in the hurricane Dorian wavelet coherence diagram, the arrows reveal that the two variables are near in-phase, but that salinity is leading depth by about 45 degrees. This means that as salinity increased, it increased at a slightly faster rate than depth. Evidence of this direct relationship can be seen in the first salinity increase in figure 3b where point colors also show an increase in depth. 
+```{r wavelet analysis, message=FALSE, warning = FALSE, echo = FALSE , results='hide', include=TRUE, fig.width=8, fig.height=12}
+##   *Can wavelet coherance diagrams show us both hurricanes in time frequency space? 
+
+#wtc test -> use only targeted analysis periods for the wavelet analysis for this. computer is not powerful enough to run the code -> FIGURE 3 -------
+
+data.frame(flor_period$date_time, flor_period$salinity)->salinity_ts
+data.frame(flor_period$date_time, flor_period$water_level_m)->lvl_ts
+#change all NAs to -99999
+salinity_lvl_wtc <- wtc(salinity_ts, lvl_ts)
+data.frame(dor_period$date_time, dor_period$salinity)->dor_salinity_ts
+data.frame(dor_period$date_time, dor_period$water_level_m)->dor_lvl_ts
+#change all NAs to -99999
+dor_salinity_lvl_wtc <- wtc(dor_salinity_ts, dor_lvl_ts)
+
+
+{par(oma = c(0, 0, 0, 1), mar = c(5, 4, 4, 5) + 0.1,mfrow=c(2,1))
+plot(salinity_lvl_wtc, plot.cb = TRUE,plot.phase = TRUE, main= "fig 4a. Salinity vs. Depth Wavelet Coherence \n Hurricane Florence",xaxt = 'n',)
+axis(1,at = c(min(flor_period$date_time),median(flor_period$date_time),max(flor_period$date_time)),labels = c(min(flor_period$date_time),median(flor_period$date_time),max(flor_period$date_time)))
+plot(dor_salinity_lvl_wtc, plot.cb = TRUE,plot.phase = TRUE, main = "fig 4b. Salinity vs. Depth Wavelet Coherence \n Hurricane Dorian",xaxt = 'n')
+axis(1,at = c(min(dor_period$date_time),median(dor_period$date_time),max(dor_period$date_time)),labels = c(min(dor_period$date_time),median(dor_period$date_time),max(dor_period$date_time)))}
+
+```
+
+In early October of 2019, North Carolina experienced a flash drought, defined by a period where high temperatures and low precipitation cause drought conditions to form rapidly. Figure 4 reveals that the flashiness of salinity within the data is greatly reduced. Looking closer at just the flash drought period, we can see that the salinity data almost appear to follow a lunar tidal cycle. For this period, the inter-event period was on average, 11 hours, which is very close to the periodicity of lunar tides, leading us to believe that under conditions of drought and in the absence of wind tides, this site experiences lunar tides, that are normally lost in the dataset. We can test this hypothesis using continuous wavelet transforms. If infact this pattern in our flash drought data is due to lunar tides, we should see dark bands, denoting significant variability, across the half day period. Figure 5 reveals that indeed, this trend shows up as we hypothesized, leading us to believe that a flash drought will reveal a tidal signature at this site, that is normally not seen in our data. Another hypothesis for this behavior that has not yet been tested, is that without regular precipitation, the data instead are showing a signature of evapotranspiration, which would certainly be lost in the presence of ample water supplies. 
+
+
+```{r analyze the duration of saltwater intrusion events during the 2019 flash drought,message=FALSE, warning = FALSE, echo = FALSE, inclue=TRUE, results = 'hide'}
+##   *During the flash drought of 2019 what patterns do we see in our salinity data?
+##  The 2019 Flash Drought occurred from 2019-09-20 00:45:00 to 2019-10-07 23:45:00
+##   plot the flash drought
+##   turn into a dual plot with precipitation on the y-axis
+filter(ar0_2018_2019_hourly,date_time>=ymd_hms("2019-09-20 00:45:00") & date_time <ymd_hms('2019-10-07 23:45:00')) ->flash_d_period
+
+ggplot(flash_d_period)+
+  geom_point(mapping = aes(x=date_time, y= salinity),size = 2, fill = "red",pch =21,rcolor = "black")+
+  labs(x= "",y= "Salinity (ppt)", caption = "fig 5. Salinity during the flash drought period of 2019")+
+  guides(fill=FALSE)+
+  theme_classic() +
+  theme(plot.caption = element_text(hjust = 0, face = "italic"))# move caption to the left
+
+#to understand the pattern here, lets calculate the duration of the drought induced saltwater intrusion events
+
+flash_d_salt <- na.omit(flash_d_period$salinity)
+flash_d_int <-  rep(NA, length(flash_d_salt))
+int = 0
+for (record in 1:length(flash_d_int)){ 
+  if (flash_d_salt[record] >1){
+    if (int>0){
+      flash_d_int[record] <- int 
+      int = 0
+    }
+  }
+  else{
+    int=int+1
+  }
+}
+flash_d_int <- na.omit(flash_d_int)
+mean(flash_d_int)
+#average duration of events is close to 12 hours leading us to believe this is  a lunar tide phenomena. We can use wavelets to test this hypothesis. If we see a clear band across the 
+```
+
+```{r cwt for flash drought, include=TRUE, results = 'hide' , warning=FALSE, message=FALSE,echo=FALSE}
+filter(ar0_2018_2019_hourly,date_time>=ymd_hms("2019-09-28 00:45:00") & date_time <ymd_hms('2019-10-07 23:45:00')) ->cwt_fd_period
+data.frame(cwt_fd_period$date_time, cwt_fd_period$salinity)->fd_salinity_ts
+fd_salinity_ts$cwt_fd_period.salinity[is.na(fd_salinity_ts$cwt_fd_period.salinity)] <- -999
+cwt_fd <- wt(fd_salinity_ts)
+par(oma = c(0, 0, 0, 1), mar = c(5, 4, 4, 5) + 0.1)
+plot(cwt_fd, plot.cb=TRUE,xaxt="n", main=" fig 6. 2019 Flash drought salinity continuous wavelet transform" )
+axis(1,at = c(min(flash_d_period$date_time),median(flash_d_period$date_time),max(flash_d_period$date_time)),labels = c(min(flash_d_period$date_time),median(flash_d_period$date_time),max(flash_d_period$date_time)))
+```
+
+## Conclusion  
+
+Wavelets can be a powerful tool for understanding what drives a geophysical phenomena. Future work can use these tools to analyze different potential drivers of saltwater intrusion events such as wind direction and speed. Within this body of work, we discovered that there is a significant relationship between salinity and depth during storm surge events, and that the duration of elevated salinity following a storm surge is event specific. Finally, a lack of freshwater within a system from drought conditions will reveal salinity patterns that are normally hidden beneath the noise of everday salinity patterns. 
